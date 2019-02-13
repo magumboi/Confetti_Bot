@@ -34,7 +34,7 @@ Use python 3.7.2. In particular the packages/libraries used are...
     * Windows
         * Go to [UB-Mannheim's Repository](https://github.com/UB-Mannheim/tesseract/wiki)
         * Then find the `tesseract 4.0` binary that corresponds with your system (32 or 64 bit)
-         ![](https://i.imgur.com/FcUD30c.png)
+         ![](https://i.imgur.com/fpxRVct.png)
         * Don't forget to add tesseract installation folder to the PATH
 
 
