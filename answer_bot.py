@@ -101,6 +101,8 @@ def read_screen():
 
 	# load the image as a PIL/Pillow image, apply OCR, and then delete the temporary file
 	text = pytesseract.image_to_string(Image.open(filename), lang="spa")
+
+	#Uncomment the following block to delete screenshots after read
 	'''os.remove(filename)
 	os.remove(screenshot_file)'''
 	
@@ -215,7 +217,6 @@ def google_wiki(sim_ques, options, neg):
 
 	pool = mp.Pool(processes=5)
 
-	#results = [pool.apply_async(api_search, args=(o, sim_ques, neg)) for o in options]
 	try:
 		results = [pool.apply_async(api_search, args=(o, sim_ques, neg)) for o in options]
 		pool.close()
@@ -246,16 +247,6 @@ def google_wiki(sim_ques, options, neg):
 				cont += 1
 		except:
 			print('\nOcurrio un error fatal.')
-
-	'''cont=0
-	for o in options:
-		temp = output[cont][0]
-		original = output[cont][1]
-		points.append(temp)
-		if temp>maxp:
-			maxp=temp
-			maxo=original
-		cont += 1'''
 
 	spinner.succeed()
 	spinner.stop()

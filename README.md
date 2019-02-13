@@ -1,13 +1,17 @@
-# HQ_Bot 🤖
+
+# Confetti_Bot 🤖
 ![License: MIT][ico-license]
 
-A bot to help answer questions on trivia apps like HQ and CashShow. This bot takes screenshot of the game on the phone and uses googles tesseract OCR to read the questions and options. It automates the process of googling of the answers and gives the most likely answer! It is 70%+ accurate! 
+This is a forked version of HQ_bot, a bot to help answer questions on trivia games like Confetti, HQ and CashShow. This bot takes screenshot of the game on the phone and uses googles tesseract OCR to read the questions and options. It automates the process of googling of the answers and gives the most likely answer! It is 70%+ accurate!
+
+* Multiprocessing methods were used to make google api calls 2x faster (from about 8.5s to 3.8s). 
+* tesseract spanish package were used to read spanish words properly.
 
 Since it is against the policy of HQ-trivia i do not encourage anyone to use this during a live game and this is purely for educational purposes.  
 
 ## Packages Used
 
-Use python 3.6. In particular the packages/libraries used are...
+Use python 3.7.2. In particular the packages/libraries used are...
 
 * JSON - Data Storage 
 * Pillow - Image manipulation
@@ -21,37 +25,40 @@ Use python 3.6. In particular the packages/libraries used are...
 * wxPython - GUI interface
 
 *To easily install these*
-1. Install python 3.6
+1. Install python 3.7.2
 2. Install above packages
     * `$ pip3 install -r requirements.txt`
 3. For tesseract 
-    * `$ brew install tesseract`
-4. For opencv
-    * `$ brew install opencv`
+	* On Mac
+	     `$ brew install tesseract`
+    * Windows
+        * Go to [UB-Mannheim's Repository](https://github.com/UB-Mannheim/tesseract/wiki)
+        * Then find the `tesseract 4.0` binary that corresponds with your system (32 or 64 bit)
+         ![](https://i.imgur.com/N2hU0xE.png)
+        * Don't forget to add tesseract installation folder to the PATH
 
 
 ## Usage
 
-Make sure all packages above are installed. For android phones use [Vysor][link-vysor] and for iOS use quicktime player. **The code expects the phone to be on the left side of the screen.** If you want to change the screenshot co-ordinates change the values inside the ImageGrab in the `screen_grab()` function. To use the script : 
+Make sure all packages above are installed. For Android screen mirroring you could use [scrcpy](https://github.com/Genymobile/scrcpy) and for iOS, quicktime player. **The code expects the phone to be on the left side of the screen.** If you want to change the screenshot co-ordinates change the values inside the ImageGrab in the `screen_grab()` function. To use the script : 
 
 ```bash
-$ git clone https://github.com/sushant10/HQ_Bot
-$ cd HQ_Bot
+$ git clone https://github.com/magumboi/Confetti_Bot.git
+$ cd Confetti_Bot
 $ pip3 install -r requirements.txt
-$ python3 answer_bot.py
+$ python answer_bot.py
 Press s to screenshot live game, sampq to run against sample questions or q to quit:
 s
 ...Question...
 ```
 ## Screenshots
 
-<img src="https://github.com/sushant10/HQ_Bot/blob/master/Screens/screenshot3.png" width="900" height="540" />
-<img src="https://github.com/sushant10/HQ_Bot/blob/master/Screens/screenshot2.png" width="500" height="320" />
+
 
 
 ## Contributing
 
-All contributions welcome.
+All contributions are welcome.
 
 ## Credits
 
