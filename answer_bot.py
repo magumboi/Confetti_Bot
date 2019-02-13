@@ -14,6 +14,7 @@
 
 # answering bot for trivia HQ and Cash Show
 import json
+import time
 import urllib.request as urllib2
 from bs4 import BeautifulSoup
 from google import google
@@ -26,6 +27,8 @@ import pyscreenshot as Imagegrab
 import sys
 import wx
 from halo import Halo
+import multiprocessing as mp
+
 
 # for terminal colors 
 class bcolors:
@@ -59,14 +62,14 @@ def gui_interface():
 # load sample questions
 def load_json():
 	global remove_words, sample_questions, negative_words
-	remove_words = json.loads(open("Data/settings.json").read())["remove_words"]
-	negative_words = json.loads(open("Data/settings.json").read())["negative_words"]
-	sample_questions = json.loads(open("Data/questions.json").read())
+	remove_words = json.loads(open("Data/settings.json", encoding="utf8").read())["remove_words"]
+	negative_words = json.loads(open("Data/settings.json", encoding="utf8").read())["negative_words"]
+	sample_questions = json.loads(open("Data/questions.json", encoding="utf8").read())
 
 # take screenshot of question 
 def screen_grab(to_save):
 	# 31,228 485,620 co-ords of screenshot// left side of screen
-	im = Imagegrab.grab(bbox=(31,228,485,640))
+	im = Imagegrab.grab(bbox=(237,678,708,960))
 	im.save(to_save)
 
 # get OCR text //questions and options
@@ -97,9 +100,9 @@ def read_screen():
 	cv2.imwrite(filename, gray)
 
 	# load the image as a PIL/Pillow image, apply OCR, and then delete the temporary file
-	text = pytesseract.image_to_string(Image.open(filename))
-	os.remove(filename)
-	os.remove(screenshot_file)
+	text = pytesseract.image_to_string(Image.open(filename), lang="spa")
+	'''os.remove(filename)
+	os.remove(screenshot_file)'''
 	
 	# show the output images
 
@@ -157,6 +160,7 @@ def simplify_ques(question):
 def get_page(link):
 	try:
 		if link.find('mailto') != -1:
+			print(' Elapsed Time: {}'.format(time.time() - start_time))
 			return ''
 		req = urllib2.Request(link, headers={'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)'})
 		html = urllib2.urlopen(req).read()
@@ -166,7 +170,7 @@ def get_page(link):
 
 # split the string
 def split_string(source):
-	splitlist = ",!-.;/?@ #"
+	splitlist = "¿,!-.;/?@ #"
 	output = []
 	atsplit = True
 	for char in source:
@@ -205,41 +209,82 @@ def smart_answer(content,qwords):
 def google_wiki(sim_ques, options, neg):
 	spinner = Halo(text='Googling and searching Wikipedia', spinner='dots2')
 	spinner.start()
-	num_pages = 1
 	points = list()
-	content = ""
 	maxo=""
 	maxp=-sys.maxsize
-	words = split_string(sim_ques)
+
+	pool = mp.Pool(processes=5)
+
+	#results = [pool.apply_async(api_search, args=(o, sim_ques, neg)) for o in options]
+	try:
+		results = [pool.apply_async(api_search, args=(o, sim_ques, neg)) for o in options]
+		pool.close()
+		output = [p.get() for p in results]
+		cont=0
+		for o in options:
+			temp = output[cont][0]
+			original = output[cont][1]
+			points.append(temp)
+			if temp>maxp:
+				maxp=temp
+				maxo=original
+			cont += 1
+	except:
+		print('\nError, reintentando... ')
+		try:
+			results = [pool.apply_async(api_search, args=(o, sim_ques, neg)) for o in options]
+			pool.close()
+			output = [p.get() for p in results]
+			cont=0
+			for o in options:
+				temp = output[cont][0]
+				original = output[cont][1]
+				points.append(temp)
+				if temp>maxp:
+					maxp=temp
+					maxo=original
+				cont += 1
+		except:
+			print('\nOcurrio un error fatal.')
+
+	'''cont=0
 	for o in options:
-		
-		o = o.lower()
-		original=o
-		o += ' wiki'
-
-		# get google search results for option + 'wiki'
-		search_wiki = google.search(o, num_pages)
-
-		link = search_wiki[0].link
-		content = get_page(link)
-		soup = BeautifulSoup(content,"lxml")
-		page = soup.get_text().lower()
-
-		temp=0
-
-		for word in words:
-			temp = temp + page.count(word)
-		temp+=smart_answer(page, words)
-		if neg:
-			temp*=-1
+		temp = output[cont][0]
+		original = output[cont][1]
 		points.append(temp)
 		if temp>maxp:
 			maxp=temp
 			maxo=original
+		cont += 1'''
+
 	spinner.succeed()
 	spinner.stop()
 	return points,maxo
 
+def api_search(o,sim_ques,neg):
+	num_pages = 1
+	words = split_string(sim_ques)
+	content = ""
+	o = o.lower()
+	original=o
+	o += ' wiki'
+
+	# get google search results for option + 'wiki'
+	search_wiki = google.search(o, num_pages)
+
+	link = search_wiki[0].link
+	content = get_page(link)
+	soup = BeautifulSoup(content,"lxml")
+	page = soup.get_text().lower()
+
+	temp=0
+
+	for word in words:
+		temp = temp + page.count(word)
+	temp+=smart_answer(page, words)
+	if neg:
+		temp*=-1
+	return [temp,original]
 
 # return points for sample_questions
 def get_points_sample():
@@ -262,6 +307,7 @@ def get_points_sample():
 
 # return points for live game // by screenshot
 def get_points_live():
+	start_time = time.time()
 	neg= False
 	question,options=parse_question()
 	simq = ""
@@ -277,13 +323,17 @@ def get_points_live():
 		if maxo == option.lower():
 			option=bcolors.OKGREEN+option+bcolors.ENDC
 		print(option + " { points: " + bcolors.BOLD + str(point*m) + bcolors.ENDC + " }\n")
+	print('Total Elapsed Time: {}'.format(time.time() - start_time))
 
 
 # menu// main func
 if __name__ == "__main__":
 	load_json()
+	'''while(1):
+		keypressed = input('Press s to screenshot live game, sampq to run against sample questions or q to quit:\n')
+		get_points_live()'''
 	while(1):
-		keypressed = input(bcolors.WARNING +'\nPress s to screenshot live game, sampq to run against sample questions or q to quit:\n' + bcolors.ENDC)
+		keypressed = input('Press s to screenshot live game, sampq to run against sample questions or q to quit:\n')
 		if keypressed == 's':
 			get_points_live()
 		elif keypressed == 'sampq':
