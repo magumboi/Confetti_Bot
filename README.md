@@ -1,8 +1,8 @@
 
-# Confetti_Bot 🤖
+# Confetti Bot 🤖
 ![License: MIT][ico-license]
 
-This is a forked version of HQ_bot, a bot to help answer questions on trivia games like Confetti, HQ and CashShow. This bot takes screenshot of the game on the phone and uses googles tesseract OCR to read the questions and options. It automates the process of googling of the answers and gives the most likely answer! It is 70%+ accurate!
+This is a forked version of HQ_bot, a bot to help answer questions on trivia games like Facebook's Confetti, HQ and CashShow. This bot takes screenshot of the game on the phone and uses googles tesseract OCR to read the questions and options. It automates the process of googling of the answers and gives the most likely answer! It is 70%+ accurate!
 
 * Multiprocessing methods were used to make google api calls 2x faster (from about 8.5s to 3.8s). 
 * tesseract spanish package were used to read spanish words properly.
